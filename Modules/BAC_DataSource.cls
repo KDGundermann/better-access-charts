@@ -89,7 +89,7 @@ Public Property Let DataFieldNames(ByRef This_DataFieldNames As Variant)
             m_DataFieldNames(i) = This_DataFieldNames(i)
         Next
     Else
-        m_DataFieldNames = Array(This_DataFieldNames)
+        m_DataFieldNames = Split(This_DataFieldNames, ",")
     End If
     If LBound(m_DataFieldNames) = UBound(m_DataFieldNames) Then
         m_IsSingleDataset = True
