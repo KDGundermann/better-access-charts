@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 '###########################################################################################
-'# Copyright (c) 2020, 2021 Thomas Möller, supported by K.D.Gundermann                     #
+'# Copyright (c) 2020, 2021 Thomas Mï¿½ller, supported by K.D.Gundermann                     #
 '# MIT License  => https://github.com/team-moeller/better-access-charts/blob/main/LICENSE  #
 '# Version xxxxx  published: 04.11.2021                                                  #
 '###########################################################################################
@@ -77,6 +77,8 @@ Private m_ShowDownloadLink As Boolean
 Private m_SaveHtmlFileForDebugging As Boolean
 
 Private m_IsSingleBarChart As Boolean
+
+Private m_AspectRatio      As Double
     
 Private m_ColorScheme As BAC_ColorScheme
 Private m_DataSource  As BAC_DataSource
@@ -86,6 +88,21 @@ Private m_XAxis       As BAC_Axis
 Private m_YAxis       As BAC_Axis
 Private m_Legend      As BAC_Legend
 Private m_Title       As BAC_Title
+    
+    
+'### Initializer
+
+Public Sub Init(Optional ByVal TheControl As WebBrowserControl, _
+                Optional ByVal ChartType As chChartType = chChartType.Bar, _
+                Optional ByVal DataSourceType As chDataSourceType, _
+                Optional ByVal DataSource As Variant, _
+                Optional ByVal DataFieldNames As Variant, _
+                Optional ByVal LabelFieldName As String)
+  
+  Set Me.Control = TheControl
+  Me.ChartType = ChartType
+  Me.DataSource.Init DataSourceType, DataSource, DataFieldNames, LabelFieldName
+End Sub
     
     
 '### Properties
@@ -131,6 +148,14 @@ Public Property Let AreaFilled(ByVal This_AreaFilled As Boolean)
 End Property
 Public Property Get AreaFilled() As Boolean
     AreaFilled = m_AreaFilled
+End Property
+
+' Proportion of Width / Height
+Public Property Let AspectRatio(ByVal This_Ratio As Double)
+    m_AspectRatio = This_Ratio
+End Property
+Public Property Get AspectRatio() As Double
+    AspectRatio = m_AspectRatio
 End Property
 
 Public Property Let ChartBackgroundColor(ByVal This_ChartBackgroundColor As String)
@@ -208,6 +233,7 @@ Private Sub Class_Initialize()
     'Set default values
     ChartType = chChartType.Bar
     StackedChart = False
+    AspectRatio = 2
     'Title
     Title.Show = False
     Title.Position = posTop
@@ -256,21 +282,6 @@ Public Sub DrawChart()
     
 End Sub
 
-    
-'### Initializer
-
-Public Sub Init(Optional ByVal TheControl As WebBrowserControl, _
-                Optional ByVal ChartType As chChartType = chChartType.Bar, _
-                Optional ByVal DataSourceType As chDataSourceType, _
-                Optional ByVal DataSource As Variant, _
-                Optional ByVal DataFieldNames As Variant, _
-                Optional ByVal LabelFieldName As String)
-  
-  Set Me.Control = TheControl
-  Me.ChartType = ChartType
-  Me.DataSource.Init DataSourceType, DataSource, DataFieldNames, LabelFieldName
-End Sub
-
 
 '### Private Methods
 
@@ -315,7 +326,7 @@ Private Function getHeader() As String
         End If
         .AddLine "</head>"
         .AddLine "<body>"
-        .AddLine "<div id=""container"" style=""width: 100%;"">"
+        .AddLine "<div id=""container"" style=""position: relative; width: 100%;"">"
         If Len(ChartBackgroundColor) > 0 Then
             .AddLine "    <canvas id=""myChart"" style=""background-color: " & ChartBackgroundColor & """ ></canvas>"
         Else
@@ -431,6 +442,9 @@ Private Function getChartOptions() As String
     Dim strText As New BAC_StringBuilder
     With strText
         .AddLine "        options: {"
+        If Me.AspectRatio <> 2# Then
+            .AddLine " aspectRatio: " & Str(AspectRatio) & ","
+        End If
         .Add Title.getTitle
         .Add Legend.getLegend
         .Add getScales
