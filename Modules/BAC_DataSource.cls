@@ -18,7 +18,7 @@ Option Explicit
 Private m_Type As chDataSourceType
 Private m_ObjectName As String
 Private m_SQLStatement As String
-Private m_Recordset As DAO.Recordset
+Private m_Recordset As Object ' ADODB/DAO.Recordset
 Private m_LabelFieldName As String
 Private m_DataFieldNames() As String
 
@@ -63,11 +63,11 @@ Public Property Get SQLStatement() As String
     SQLStatement = m_SQLStatement
 End Property
 
-Public Property Set Recordset(ByVal This_Recordset As DAO.Recordset)
+Public Property Set Recordset(ByVal This_Recordset As Object)  ' ADODB/DAO.Recordset
     m_Type = dstRecordset
     Set m_Recordset = This_Recordset
 End Property
-Public Property Get Recordset() As DAO.Recordset
+Public Property Get Recordset() As Object ' ADODB/DAO.Recordset
     Set Recordset = m_Recordset
 End Property
 
@@ -113,9 +113,7 @@ On Error GoTo Handle_Error
 
     'Declarations
     Dim db As DAO.Database
-    Dim rst As DAO.Recordset
-    'Dim strLabels() As String
-    'Dim strData() As String
+    Dim rst As Object ' ADODB/DAO.Recordset
     Dim dataSet As New BAC_DataSet
     Dim Field As Variant
     Dim i As Integer
